@@ -18,10 +18,10 @@ def compute_scanner_cylinders(scan, jump, min_dist, cylinder_offset):
 # Line header defines the start of each line, e.g. "D C" for a detected
 # cylinder or "W C" for a world cylinder.
 def write_cylinders(file_desc, line_header, cylinder_list):
-    print >> file_desc, line_header,
+    file_desc.write(line_header + " ")
     for c in cylinder_list:
-        print >> file_desc, "%.1f %.1f" % c,
-    print >> file_desc
+        file_desc.write(f"{c[0]:.1f} {c[1]:.1f} ")
+    file_desc.write("\n")
 
 if __name__ == '__main__':
     # The constants we used for the filter_step.
@@ -39,12 +39,12 @@ if __name__ == '__main__':
 
     # Read the logfile which contains all scans.
     logfile = LegoLogfile()
-    logfile.read("robot4_motors.txt")
-    logfile.read("robot4_scan.txt")
+    logfile.read("Unit_B\\robot4_motors.txt")
+    logfile.read("Unit_B\\robot4_scan.txt")
 
     # Iterate over all positions.
-    out_file = file("project_landmarks.txt", "w")
-    for i in xrange(len(logfile.scan_data)):
+    out_file = open("Unit_B\\project_landmarks.txt", "w")
+    for i in range(len(logfile.scan_data)):
         # Compute the new pose.
         pose = filter_step(pose, logfile.motor_ticks[i],
                            ticks_to_mm, robot_width,
@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
         # Write results to file.
         # The pose.
-        print >> out_file, "F %f %f %f" % pose
+        out_file.write(f"F {pose[0]} {pose[1]} {pose[2]}\n")
         # The detected cylinders in the scanner's coordinate system.
         write_cylinders(out_file, "D C", cartesian_cylinders)
         # The detected cylinders in the world coordinate system.
