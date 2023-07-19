@@ -6,7 +6,7 @@ from lego_robot import *
 
 # Read the logfile which contains all scans.
 logfile = LegoLogfile()
-logfile.read("robot4_scan.txt")
+logfile.read("Unit_A\\robot4_scan.txt")
 
 # Plot one scan.
 plot(logfile.scan_data[8])

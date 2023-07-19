@@ -1,7 +1,7 @@
 # Python routines to inspect a ikg LEGO robot logfile.
 # Author: Claus Brenner, 28.10.2012
-from Tkinter import *
-import tkFileDialog
+from tkinter import *
+from tkinter import filedialog
 from lego_robot import *
 from math import sin, cos, pi
 
@@ -19,10 +19,10 @@ max_scanner_range = 2200.0
 
 class DrawableObject(object):
     def draw(self, at_step):
-        print "To be overwritten - will draw a certain point in time:", at_step
+        print("To be overwritten - will draw a certain point in time: " + at_step)
 
     def background_draw(self):
-        print "Background draw."
+        print("Background draw.")
 
 class Trajectory(DrawableObject):
     def __init__(self, points, canvas,
@@ -148,7 +148,7 @@ class Points(DrawableObject):
 
     def draw(self, at_step):
         if self.cursor_objects:
-            map(self.canvas.delete, self.cursor_objects)
+            list(map(self.canvas.delete, self.cursor_objects))
             self.cursor_objects = []
         if at_step < len(self.points):
             for c in self.points[at_step]:
@@ -184,7 +184,7 @@ def slider_moved(index):
     info.config(text=logfile.info(i))
 
 def add_file():
-    filename = tkFileDialog.askopenfilename(filetypes = [("all files", ".*"), ("txt files", ".txt")])
+    filename = filedialog.askopenfilename(filetypes = [("all files", ".*"), ("txt files", ".txt")])
     if filename and filename not in all_file_names:
         all_file_names.append(filename)
         load_data()
@@ -230,7 +230,7 @@ def load_data():
     if logfile.detected_cylinders and logfile.filtered_positions and \
         len(logfile.filtered_positions[0]) > 2:
         positions = []
-        for i in xrange(min(len(logfile.detected_cylinders), len(logfile.filtered_positions))):
+        for i in range(min(len(logfile.detected_cylinders), len(logfile.filtered_positions))):
             this_pose_positions = []
             pos = logfile.filtered_positions[i]
             dx = cos(pos[2])
@@ -244,8 +244,9 @@ def load_data():
         draw_objects.append(Points(positions, world_canvas, "#88FF88"))
 
     # Start new canvas and do all background drawing.
-    world_canvas.delete(ALL)
-    sensor_canvas.delete(ALL)
+    world_canvas.delete("all")
+    sensor_canvas.delete("all")
+    # print(draw_objects[3].points)
     for d in draw_objects:
         d.background_draw()
 
@@ -283,4 +284,4 @@ if __name__ == '__main__':
     add_file()
 
     root.mainloop()
-    root.destroy()
+    root.quit()
