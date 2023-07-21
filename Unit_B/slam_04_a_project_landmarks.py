@@ -39,11 +39,11 @@ if __name__ == '__main__':
 
     # Read the logfile which contains all scans.
     logfile = LegoLogfile()
-    logfile.read("Unit_B\\robot4_motors.txt")
-    logfile.read("Unit_B\\robot4_scan.txt")
+    logfile.read("Unit_B/robot4_motors.txt")
+    logfile.read("Unit_B/robot4_scan.txt")
 
     # Iterate over all positions.
-    out_file = open("Unit_B\\project_landmarks.txt", "w")
+    out_file = open("Unit_B/project_landmarks.txt", "w")
     for i in range(len(logfile.scan_data)):
         # Compute the new pose.
         pose = filter_step(pose, logfile.motor_ticks[i],

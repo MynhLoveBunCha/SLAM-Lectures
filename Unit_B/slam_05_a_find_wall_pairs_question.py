@@ -12,7 +12,7 @@ from slam_04_a_project_landmarks import write_cylinders
 def get_subsampled_points(scan, sampling = 10):
     # Subsample from scan
     index_range_tuples = []
-    for i in xrange(0, len(scan), sampling):
+    for i in range(0, len(scan), sampling):
         index_range_tuples.append( (i, scan[i]) )
     return compute_cartesian_coordinates(index_range_tuples, 0.0)
 
@@ -27,6 +27,20 @@ def get_corresponding_points_on_wall(points,
     left_list = []
     right_list = []
 
+    for i in range(len(points)):
+        x, y = points[i]
+        if abs(x - arena_left) < eps:
+            left_list.append((x, y))
+            right_list.append((arena_left, y))
+        elif abs(x - arena_right) < eps:
+            left_list.append((x, y))
+            right_list.append((arena_right, y))
+        elif abs(y - arena_bottom) < eps:
+            left_list.append((x, y))
+            right_list.append((x, arena_bottom))
+        elif abs(y - arena_top) < eps:
+            left_list.append((x, y))
+            right_list.append((x, arena_top))
     # ---> Implement your code here.
 
     return left_list, right_list
@@ -43,12 +57,12 @@ if __name__ == '__main__':
 
     # Read the logfile which contains all scans.
     logfile = LegoLogfile()
-    logfile.read("robot4_motors.txt")
-    logfile.read("robot4_scan.txt")
+    logfile.read("Unit_B/robot4_motors.txt")
+    logfile.read("Unit_B/robot4_scan.txt")
 
     # Iterate over all positions.
-    out_file = file("find_wall_pairs.txt", "w")
-    for i in xrange(len(logfile.scan_data)):
+    out_file = open("Unit_B/find_wall_pairs.txt", "w")
+    for i in range(len(logfile.scan_data)):
         # Compute the new pose.
         pose = filter_step(pose, logfile.motor_ticks[i],
                            ticks_to_mm, robot_width,
@@ -64,7 +78,7 @@ if __name__ == '__main__':
 
         # Write to file.
         # The pose.
-        print >> out_file, "F %f %f %f" % pose
+        out_file.write(f"F {pose[0]} {pose[1]} {pose[2]}\n")
         # Write the scanner points and corresponding points.
         write_cylinders(out_file, "W C", left + right)
 

@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     # Read data.
     logfile = LegoLogfile()
-    logfile.read("Unit_A\\robot4_motors.txt")
+    logfile.read("Unit_A/robot4_motors.txt")
 
     # Start at origin (0,0), looking along x axis (alpha = 0).
     pose = (0.0, 0.0, 0.0)

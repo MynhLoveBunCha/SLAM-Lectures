@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
     # Read data.
     logfile = LegoLogfile()
-    logfile.read("Unit_A\\robot4_motors.txt")
+    logfile.read("Unit_A/robot4_motors.txt")
 
     # Loop over all motor tick records generate filtered position list.
     filtered = []
@@ -81,7 +81,7 @@ if __name__ == '__main__':
         filtered.append(pose)
 
     # Write all filtered positions to file.
-    f = open("Unit_A\\poses_from_ticks.txt", "w")
+    f = open("Unit_A/poses_from_ticks.txt", "w")
     for pose in filtered:
         f.write(f"F {pose[0]} {pose[1]} {pose[2]}\n")
     f.close()

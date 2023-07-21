@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
     # Read the logfile which contains all scans.
     logfile = LegoLogfile()
-    logfile.read("Unit_A\\robot4_scan.txt")
+    logfile.read("Unit_A/robot4_scan.txt")
 
     # Pick one scan.
     scan = logfile.scan_data[8]

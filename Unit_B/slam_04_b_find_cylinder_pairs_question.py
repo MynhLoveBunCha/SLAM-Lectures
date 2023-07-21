@@ -14,6 +14,18 @@ from slam_04_a_project_landmarks import\
 # j is the index of the reference_cylinder, to the result list.
 def find_cylinder_pairs(cylinders, reference_cylinders, max_radius):
     cylinder_pairs = []
+    for i in range(len(cylinders)):
+        x, y = cylinders[i]
+        min_dist = float("inf")
+        min_ref_idx = None
+        for j in range(len(reference_cylinders)):
+            x_ref, y_ref = reference_cylinders[j]
+            dist = ((x - x_ref)**2 + (y - y_ref)**2)**0.5
+            if dist < min_dist and dist < max_radius:
+                min_dist = dist
+                min_ref_idx = j
+        if min_ref_idx is not None:
+            cylinder_pairs.append((i, min_ref_idx))
 
     # --->>> Enter your code here.
     # Make a loop over all cylinders and reference_cylinders.
@@ -43,16 +55,16 @@ if __name__ == '__main__':
 
     # Read the logfile which contains all scans.
     logfile = LegoLogfile()
-    logfile.read("robot4_motors.txt")
-    logfile.read("robot4_scan.txt")
+    logfile.read("Unit_B/robot4_motors.txt")
+    logfile.read("Unit_B/robot4_scan.txt")
 
     # Also read the reference cylinders (the map).
-    logfile.read("robot_arena_landmarks.txt")
+    logfile.read("Unit_B/robot_arena_landmarks.txt")
     reference_cylinders = [l[1:3] for l in logfile.landmarks]
 
     # Iterate over all positions.
-    out_file = file("find_cylinder_pairs.txt", "w")
-    for i in xrange(len(logfile.scan_data)):
+    out_file = open("Unit_B/find_cylinder_pairs.txt", "w")
+    for i in range(len(logfile.scan_data)):
         # Compute the new pose.
         pose = filter_step(pose, logfile.motor_ticks[i],
                            ticks_to_mm, robot_width,
@@ -71,7 +83,7 @@ if __name__ == '__main__':
 
         # Write to file.
         # The pose.
-        print >> out_file, "F %f %f %f" % pose
+        out_file.write(f"F {pose[0]} {pose[1]} {pose[2]}\n")
         # The detected cylinders in the scanner's coordinate system.
         write_cylinders(out_file, "D C", cartesian_cylinders)
         # The reference cylinders which were part of a cylinder pair.

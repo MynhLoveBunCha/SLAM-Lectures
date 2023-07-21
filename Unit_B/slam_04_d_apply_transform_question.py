@@ -10,6 +10,7 @@ from slam_b_library import filter_step
 from slam_04_a_project_landmarks import\
      compute_scanner_cylinders, write_cylinders
 from math import sqrt, atan2
+import numpy as np
 
 # Given a list of cylinders (points) and reference_cylinders:
 # For every cylinder, find the closest reference_cylinder and add
@@ -18,7 +19,18 @@ from math import sqrt, atan2
 # This is the function developed in slam_04_b_find_cylinder_pairs.
 def find_cylinder_pairs(cylinders, reference_cylinders, max_radius):
     cylinder_pairs = []
-
+    for i in range(len(cylinders)):
+        x, y = cylinders[i]
+        min_dist = float("inf")
+        min_ref_idx = None
+        for j in range(len(reference_cylinders)):
+            x_ref, y_ref = reference_cylinders[j]
+            dist = ((x - x_ref)**2 + (y - y_ref)**2)**0.5
+            if dist < min_dist and dist < max_radius:
+                min_dist = dist
+                min_ref_idx = j
+        if min_ref_idx is not None:
+            cylinder_pairs.append((i, min_ref_idx))
     # --->>> Insert your previous solution here.
 
     return cylinder_pairs
@@ -42,9 +54,31 @@ def compute_center(point_list):
 # of the cosine and sine.
 def estimate_transform(left_list, right_list, fix_scale = False):
     # Compute left and right center.
-    lc = compute_center(left_list)
-    rc = compute_center(right_list)
+    lc = np.array(compute_center(left_list)).reshape((1, 2))
+    rc = np.array(compute_center(right_list)).reshape((1, 2))
 
+    left_vec = np.array(left_list)
+    right_vec = np.array(right_list)
+
+    # unbiased
+    if left_vec.shape[0] <= 1:
+        return None
+    else:
+        left_prime = left_vec - lc
+        right_prime = right_vec - rc
+
+    cs = np.sum(right_prime[:, 0] * left_prime[:, 0] + right_prime[:, 1] * left_prime[:, 1])  # cos sum
+    ss = np.sum(-right_prime[:, 0] * left_prime[:, 1] + right_prime[:, 1] * left_prime[:, 0])  # sin sum
+    rr = np.sum(right_prime[:, 0] * right_prime[:, 0] + right_prime[:, 1] * right_prime[:, 1])  # length of right square
+    ll = np.sum(left_prime[:, 0] * left_prime[:, 0] + left_prime[:, 1] * left_prime[:, 1])  # length of left square
+
+    la = 1.0
+    if not fix_scale:
+        la = sqrt(rr / ll)
+    c = cs / sqrt(cs**2 + ss**2)
+    s = ss / sqrt(cs**2 + ss**2)
+    t = rc.T - la * (np.array([[c, -s], [s, c]]) @ lc.T)
+    tx, ty = np.squeeze(t[0]), np.squeeze(t[1])
     # --->>> Insert your previous solution here.
 
     return la, c, s, tx, ty
@@ -64,10 +98,18 @@ def apply_transform(trafo, p):
 # similarity transform. Note this changes the position as well as
 # the heading.
 def correct_pose(pose, trafo):
-    
+    old_x, old_y, old_theta = pose
+
+    la, c, s, tx, ty = trafo
+    lac = la * c
+    las = la * s
+
+    x = lac * old_x - las * old_y + tx
+    y = las * old_x + lac * old_y + ty
+    theta = old_theta + atan2(s,c)
     # --->>> This is what you'll have to implement.
 
-    return (pose[0], pose[1], pose[2])  # Replace this by the corrected pose.
+    return (x, y, theta)  # Replace this by the corrected pose.
 
 
 if __name__ == '__main__':
@@ -89,15 +131,15 @@ if __name__ == '__main__':
 
     # Read the logfile which contains all scans.
     logfile = LegoLogfile()
-    logfile.read("robot4_motors.txt")
-    logfile.read("robot4_scan.txt")
+    logfile.read("Unit_B/robot4_motors.txt")
+    logfile.read("Unit_B/robot4_scan.txt")
 
     # Also read the reference cylinders (this is our map).
-    logfile.read("robot_arena_landmarks.txt")
+    logfile.read("Unit_B/robot_arena_landmarks.txt")
     reference_cylinders = [l[1:3] for l in logfile.landmarks]
 
-    out_file = file("apply_transform.txt", "w")
-    for i in xrange(len(logfile.scan_data)):
+    out_file = open("Unit_B/apply_transform.txt", "w")
+    for i in range(len(logfile.scan_data)):
         # Compute the new pose.
         pose = filter_step(pose, logfile.motor_ticks[i],
                            ticks_to_mm, robot_width,
@@ -133,7 +175,7 @@ if __name__ == '__main__':
 
         # Write to file.
         # The pose.
-        print >> out_file, "F %f %f %f" % pose
+        out_file.write(f"F {pose[0]} {pose[1]} {pose[2]}\n")
         # The detected cylinders in the scanner's coordinate system.
         write_cylinders(out_file, "D C", cartesian_cylinders)
         # The detected cylinders, transformed using the estimated trafo.

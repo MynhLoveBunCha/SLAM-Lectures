@@ -8,7 +8,7 @@ if __name__ == '__main__':
     # Format is:
     # M timestamp[in ms] pos-left[in ticks] * * * pos-right[in ticks] ...
     # so we are interested in field 2 (left) and 6 (right).
-    f = open("Unit_A\\robot4_motors.txt")
+    f = open("Unit_A/robot4_motors.txt")
     left_list = []
     right_list = []
     for l in f:

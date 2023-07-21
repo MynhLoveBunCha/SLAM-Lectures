@@ -79,14 +79,14 @@ if __name__ == '__main__':
 
     # Read the logfile which contains all scans.
     logfile = LegoLogfile()
-    logfile.read("Unit_A\\robot4_scan.txt")
+    logfile.read("Unit_A/robot4_scan.txt")
 
     # Write a result file containing all cylinder records.
     # Format is: D C x[in mm] y[in mm] ...
     # With zero or more points.
     # Note "D C" is also written for otherwise empty lines (no
     # cylinders in scan)
-    out_file = open("Unit_A\\cylinders.txt", "w")
+    out_file = open("Unit_A/cylinders.txt", "w")
     for scan in logfile.scan_data:
         # Find cylinders.
         der = compute_derivative(scan, minimum_valid_distance)
